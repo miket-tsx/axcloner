@@ -1,0 +1,16 @@
+{
+  "name": "axcloner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AXCLONER — Discord server cloner (selfbot). Zero dependencies. Node 18+. Made by axyers team (mikey).",
+  "main": "server.js",
+  "author": "axyers team (mikey)",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}

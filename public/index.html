@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#08090b" />
+    <title>AXCLONER — Discord Server Cloner</title>
+    <meta name="description" content="AXCLONER — high-speed Discord server cloner with automatic rate limit handling. By axyers team (mikey)." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0d10'/%3E%3Cpath d='M14 46 26 18h6l12 28h-7l-2.6-6.6H23.6L21 46h-7zm11.4-12.4h7.2L29 24.6l-3.6 9z' fill='%23ffb454'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">AX</span>
+        <div class="brand-text">
+          <h1>AXCLONER</h1>
+          <p>by axyers team (mikey)</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="chip" id="versionChip">v1.0.0</span>
+        <button class="btn ghost" id="guideBtn" type="button">Guide</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- ---------------------------------------------------------- CONFIG -->
+      <section class="col">
+        <article class="card">
+          <div class="card-head">
+            <h2>Connection</h2>
+            <span class="card-tag">selfbot</span>
+          </div>
+
+          <label class="field">
+            <span class="field-label">Discord token</span>
+            <div class="input-wrap">
+              <input id="token" type="password" class="input" placeholder="your user token" autocomplete="off" spellcheck="false" />
+              <button class="peek" id="peekToken" type="button" title="show / hide">👁</button>
+            </div>
+          </label>
+
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">Source server id <em>read access</em></span>
+              <input id="sourceId" class="input mono" placeholder="123456789012345678" inputmode="numeric" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span class="field-label">Target server id <em>admin required</em></span>
+              <input id="targetId" class="input mono" placeholder="123456789012345678" inputmode="numeric" autocomplete="off" />
+            </label>
+          </div>
+
+          <button class="btn accent full" id="analyzeBtn" type="button">
+            <span class="dot"></span> Analyze source
+          </button>
+          <p class="hint" id="analyzeHint">Reads names, icon, roles, channels and emojis. Nothing is written.</p>
+        </article>
+
+        <article class="card hidden" id="sourceCard">
+          <div class="card-head">
+            <h2>Source server</h2>
+            <span class="card-tag" id="sourceCounts">—</span>
+          </div>
+          <div class="guild">
+            <img class="guild-icon" id="guildIcon" alt="" />
+            <div class="guild-meta">
+              <strong id="guildName">—</strong>
+              <span id="guildId" class="mono dim">—</span>
+              <p id="guildDesc" class="dim small"></p>
+            </div>
+          </div>
+          <div class="mini-stats" id="sourceStats"></div>
+          <div class="warn-banner hidden" id="targetWarn"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h2>What to clone</h2>
+            <div class="head-actions">
+              <button class="link" id="selectAll" type="button">all</button>
+              <button class="link" id="selectNone" type="button">none</button>
+            </div>
+          </div>
+
+          <div class="opts">
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-name" checked />
+              <span class="opt-body"><span class="opt-title">Server name</span><span class="opt-desc">rename target to source</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-icon" checked />
+              <span class="opt-body"><span class="opt-title">Logo / icon</span><span class="opt-desc">server picture</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-description" checked />
+              <span class="opt-body"><span class="opt-title">Description</span><span class="opt-desc">server description text</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-roles" checked />
+              <span class="opt-body"><span class="opt-title">Roles</span><span class="opt-desc">names, colors, permissions, icons, positions</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-emojis" checked />
+              <span class="opt-body"><span class="opt-title">Emojis</span><span class="opt-desc">static + animated</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-categories" checked />
+              <span class="opt-body"><span class="opt-title">Categories</span><span class="opt-desc">order + permission overwrites</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-channels" checked />
+              <span class="opt-body"><span class="opt-title">Channels</span><span class="opt-desc">text, voice, forum, stage — perms + positions</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-onboarding" checked />
+              <span class="opt-body"><span class="opt-title">Onboarding</span><span class="opt-desc">prompts + default channels, if source has it</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-stickers" checked />
+              <span class="opt-body"><span class="opt-title">Stickers</span><span class="opt-desc">png/apng re-uploaded, Lottie skipped</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-soundboard" checked />
+              <span class="opt-body"><span class="opt-title">Soundboard</span><span class="opt-desc">sounds + volume</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-settings" checked />
+              <span class="opt-body"><span class="opt-title">Server settings</span><span class="opt-desc">afk, system channel, verification, banner, splash</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-welcome" checked />
+              <span class="opt-body"><span class="opt-title">Welcome screen</span><span class="opt-desc">description + recommended channels</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-webhooks" />
+              <span class="opt-body"><span class="opt-title">Webhooks</span><span class="opt-desc">recreates named hooks with avatars</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-invites" />
+              <span class="opt-body"><span class="opt-title">Invites</span><span class="opt-desc">same expiry + use limits, new codes</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-events" checked />
+              <span class="opt-body"><span class="opt-title">Scheduled events</span><span class="opt-desc">upcoming only, channel remapped</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-automod" checked />
+              <span class="opt-body"><span class="opt-title">AutoMod</span><span class="opt-desc">rules + triggers + exemptions</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-bans" />
+              <span class="opt-body"><span class="opt-title">Bans</span><span class="opt-desc">re-applies bans, message time not transferred</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-messages" />
+              <span class="opt-body"><span class="opt-title">Messages</span><span class="opt-desc">replayed through webhooks, attachments re-uploaded</span></span>
+            </label>
+            <label class="opt">
+              <input type="checkbox" class="opt-check" id="opt-pins" />
+              <span class="opt-body"><span class="opt-title">Pins</span><span class="opt-desc">re-pins cloned messages, needs Messages on</span></span>
+            </label>
+          </div>
+
+          <div class="adv">
+            <label class="field">
+              <span class="field-label">Max wait on a rate limit (s)</span>
+              <input id="rateLimitWait" class="input mono" type="number" min="5" max="300" value="60" />
+            </label>
+            <p class="hint">Longer limits get skipped and logged instead of stalling the run.</p>
+          </div>
+        </article>
+
+        <article class="card hidden" id="messagesCard">
+          <div class="card-head">
+            <h2>Message channels</h2>
+            <span class="card-tag" id="channelCount">0 selected</span>
+          </div>
+          <div class="grid-3">
+            <label class="field">
+              <span class="field-label">Messages per channel</span>
+              <input id="messageLimit" class="input mono" type="number" min="1" max="2000" value="50" />
+            </label>
+            <label class="field">
+              <span class="field-label">Webhooks per channel</span>
+              <input id="webhookCount" class="input mono" type="number" min="1" max="5" value="3" />
+            </label>
+            <label class="field">
+              <span class="field-label">Channels at once</span>
+              <input id="parallelChannels" class="input mono" type="number" min="1" max="6" value="3" />
+            </label>
+          </div>
+          <div class="channel-tools">
+            <button class="link" id="chanAll" type="button">select all</button>
+            <button class="link" id="chanNone" type="button">clear</button>
+          </div>
+          <div class="channel-list" id="channelList">
+            <p class="dim small">Analyze a source server to list channels.</p>
+          </div>
+        </article>
+
+        <article class="card danger">
+          <div class="card-head">
+            <h2>Wipe target first</h2>
+            <label class="toggle">
+              <input type="checkbox" id="opt-delete" />
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+          </div>
+          <p class="danger-text">
+            Deletes every channel, non-managed role and emoji in the target before cloning.
+            Roles assigned to your account are protected. This cannot be undone.
+          </p>
+        </article>
+
+        <button class="btn primary full big" id="startBtn" type="button" disabled>
+          Start clone
+        </button>
+        <p class="hint center" id="startHint">Analyze the source first.</p>
+      </section>
+
+      <!-- --------------------------------------------------------- CONSOLE -->
+      <section class="col">
+        <article class="card console-card">
+          <div class="card-head">
+            <h2>Console</h2>
+            <div class="console-actions">
+              <span class="status" id="statusPill"><span class="status-dot"></span> idle</span>
+              <button class="link" id="clearLog" type="button">clear</button>
+            </div>
+          </div>
+
+          <div class="progress">
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-meta">
+              <span id="stepLabel">waiting</span>
+              <span id="percentLabel" class="mono">0%</span>
+            </div>
+          </div>
+
+          <div class="stat-strip">
+            <div class="stat"><span class="stat-value mono" id="statRequests">0</span><span class="stat-label">requests</span></div>
+            <div class="stat"><span class="stat-value mono" id="statLimits">0</span><span class="stat-label">429s handled</span></div>
+            <div class="stat"><span class="stat-value mono" id="statTime">0s</span><span class="stat-label">elapsed</span></div>
+            <div class="stat"><span class="stat-value mono" id="statMessages">0</span><span class="stat-label">messages</span></div>
+          </div>
+
+          <div class="log" id="log" role="log" aria-live="polite"></div>
+
+          <div class="console-foot">
+            <button class="btn ghost small" id="cancelBtn" type="button" disabled>Cancel run</button>
+            <span class="dim small" id="logCount">0 lines</span>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>AXCLONER · axyers team (mikey)</span>
+      <span class="dim">selfbot · tokens stay in memory · nothing is stored</span>
+    </footer>
+
+    <!-- ------------------------------------------------------------- GUIDE -->
+    <div class="modal hidden" id="guideModal" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+      <div class="modal-panel">
+        <div class="modal-head">
+          <h2 id="guideTitle">Setup guide</h2>
+          <button class="icon-btn" id="guideClose" type="button" aria-label="close">×</button>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="windows" type="button">Windows</button>
+          <button class="tab" data-tab="linux" type="button">Linux</button>
+          <button class="tab" data-tab="termux" type="button">Termux</button>
+          <button class="tab" data-tab="usage" type="button">Usage</button>
+        </div>
+        <div class="modal-body" id="guideBody"></div>
+      </div>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
